@@ -13,7 +13,12 @@ on:
 
 jobs:
   DeployToDev:
+    name: Deploy to Snowflake DEV Account
     runs-on: ubuntu-latest
+    
+    environment:
+      name: SFD
+      url: 'https://xrpkpud-xo55404.snowflakecomputing.com'
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -27,7 +32,7 @@ jobs:
 
       - name: Run schemachange
         env:
-          SF_ACCOUNT: ${{ secrets.SF_ACCOUNT }}
+          SF_ACCOUNT: ${{ secrets.SF_ACCOUNT_DEV }}
           SF_USERNAME: ${{ secrets.SF_USERNAME }}
           SF_ROLE: ${{ secrets.SF_ROLE }}
           SF_WAREHOUSE: ${{ secrets.SF_WAREHOUSE }}
@@ -43,7 +48,13 @@ jobs:
           schemachange -f $GITHUB_WORKSPACE/migrations/enroll -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE.CHANGE_HISTORY --create-change-history-table
 
   DeployToProd:
+    name: Deploy to Snowflake PROD Account
     runs-on: ubuntu-latest
+    needs: [DeployToDev]
+    
+    environment:
+      name: SFP
+      url: 'https://pvfudjh-in02623.snowflakecomputing.com/'
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -57,7 +68,7 @@ jobs:
 
       - name: Run schemachange
         env:
-          SF_ACCOUNT: ${{ secrets.SF_ACCOUNT }}
+          SF_ACCOUNT: ${{ secrets.SF_ACCOUNT_PRD }}
           SF_USERNAME: ${{ secrets.SF_USERNAME }}
           SF_ROLE: ${{ secrets.SF_ROLE }}
           SF_WAREHOUSE: ${{ secrets.SF_WAREHOUSE }}
